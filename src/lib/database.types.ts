@@ -55,31 +55,37 @@ export type Database = {
       }
       connections: {
         Row: {
+          addressee_id: string
           created_at: string
-          follower_id: string
-          following_id: string
+          requester_id: string
+          status: Database["public"]["Enums"]["connection_status"]
+          updated_at: string
         }
         Insert: {
+          addressee_id: string
           created_at?: string
-          follower_id: string
-          following_id: string
+          requester_id: string
+          status?: Database["public"]["Enums"]["connection_status"]
+          updated_at?: string
         }
         Update: {
+          addressee_id?: string
           created_at?: string
-          follower_id?: string
-          following_id?: string
+          requester_id?: string
+          status?: Database["public"]["Enums"]["connection_status"]
+          updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "connections_follower_id_fkey"
-            columns: ["follower_id"]
+            foreignKeyName: "connections_addressee_id_fkey"
+            columns: ["addressee_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "connections_following_id_fkey"
-            columns: ["following_id"]
+            foreignKeyName: "connections_requester_id_fkey"
+            columns: ["requester_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -202,6 +208,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      connection_status: "pending" | "accepted" | "declined"
       reaction_type: "like" | "heart" | "laugh" | "wow"
     }
     CompositeTypes: {
@@ -330,6 +337,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      connection_status: ["pending", "accepted", "declined"],
       reaction_type: ["like", "heart", "laugh", "wow"],
     },
   },
