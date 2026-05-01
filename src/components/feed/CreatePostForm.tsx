@@ -1,17 +1,34 @@
 'use client';
 
-import { useState, useRef, useTransition } from 'react';
+import { useState, useRef, useTransition, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { createPost } from '@/lib/actions/posts';
+import { detectEmbedUrl } from '@/lib/embeds';
+import EmbedPlayer from '@/components/ui/EmbedPlayer';
 
 export default function CreatePostForm() {
   const router = useRouter();
   const [content, setContent] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [detectedEmbedUrl, setDetectedEmbedUrl] = useState<string | null>(null);
+  const [embedDismissed, setEmbedDismissed] = useState(false);
   const [isPending, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const detected = detectEmbedUrl(content);
+      setDetectedEmbedUrl((prev) => {
+        if (detected !== prev) setEmbedDismissed(false);
+        return detected;
+      });
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [content]);
+
+  const embedUrl = embedDismissed ? null : detectedEmbedUrl;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -29,7 +46,7 @@ export default function CreatePostForm() {
   };
 
   const handleSubmit = async () => {
-    if (!content.trim() && !imageFile) return;
+    if (!content.trim() && !imageFile && !embedUrl) return;
 
     startTransition(async () => {
       let imageUrl: string | null = null;
@@ -43,11 +60,13 @@ export default function CreatePostForm() {
         imageUrl = supabase.storage.from('post-images').getPublicUrl(path).data.publicUrl;
       }
 
-      await createPost(content.trim() || null, imageUrl || null);
+      await createPost(content.trim() || null, imageUrl || null, embedUrl);
 
       setContent('');
       setImageFile(null);
       setImagePreview(null);
+      setDetectedEmbedUrl(null);
+      setEmbedDismissed(false);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -56,7 +75,7 @@ export default function CreatePostForm() {
     });
   };
 
-  const isDisabled = isPending || (!content.trim() && !imageFile);
+  const isDisabled = isPending || (!content.trim() && !imageFile && !embedUrl);
 
   return (
     <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-4">
@@ -78,6 +97,19 @@ export default function CreatePostForm() {
           <button
             onClick={handleRemoveImage}
             className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white text-xs hover:bg-black/80 transition-colors"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
+      {embedUrl && (
+        <div className="relative mt-2">
+          <EmbedPlayer src={embedUrl} />
+          <button
+            onClick={() => setEmbedDismissed(true)}
+            className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white text-xs hover:bg-black/80 transition-colors"
+            aria-label="Remove embed"
           >
             ×
           </button>

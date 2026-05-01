@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reset your password — Horse Social</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f0ebe0;font-family:Georgia,'Times New Roman',serif;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0ebe0;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;">
+
+          <!-- Header -->
+          <tr>
+            <td align="center" style="background-color:#1c1c1c;border-radius:16px 16px 0 0;padding:32px 40px;">
+              <p style="margin:0;font-size:36px;line-height:1;">🐴</p>
+              <h1 style="margin:12px 0 4px;font-size:22px;font-weight:bold;color:#ffffff;letter-spacing:0.5px;">
+                Horse Social
+              </h1>
+              <p style="margin:0;font-size:13px;color:#a0998a;font-style:italic;">
+                Share the ride. Connect the herd.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="background-color:#ffffff;padding:40px 40px 32px;border-left:1px solid #e8e0d0;border-right:1px solid #e8e0d0;">
+              <h2 style="margin:0 0 16px;font-size:20px;color:#1c1c1c;font-weight:bold;">
+                Whoa there — password reset requested 🪄
+              </h2>
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#4a4438;">
+                We received a request to reset the password for the Horse Social account associated with <strong>{{ .Email }}</strong>.
+              </p>
+              <p style="margin:0 0 32px;font-size:15px;line-height:1.7;color:#4a4438;">
+                Click below to choose a new password. This link expires in one hour.
+              </p>
+
+              <!-- CTA Button -->
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center">
+                    <a href="{{ .ConfirmationURL }}"
+                       style="display:inline-block;background-color:#b07d2e;color:#ffffff;font-family:Arial,sans-serif;font-size:15px;font-weight:bold;text-decoration:none;padding:14px 36px;border-radius:8px;letter-spacing:0.3px;">
+                      Reset my password
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:32px 0 0;font-size:13px;color:#9a9080;line-height:1.6;">
+                If the button doesn't work, copy and paste this link into your browser:
+              </p>
+              <p style="margin:6px 0 0;font-size:12px;color:#b07d2e;word-break:break-all;">
+                {{ .ConfirmationURL }}
+              </p>
+
+              <!-- Security note -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:32px;">
+                <tr>
+                  <td style="background-color:#fdf7ee;border-left:3px solid #b07d2e;border-radius:4px;padding:14px 16px;">
+                    <p style="margin:0;font-size:13px;color:#6b5f4e;line-height:1.6;">
+                      <strong>Didn't request this?</strong> Your password has not been changed. You can safely ignore this email — someone may have entered your address by mistake.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#f7f3ec;border:1px solid #e8e0d0;border-top:none;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;">
+              <p style="margin:0;font-size:12px;color:#b8ad9e;">
+                © Horse Social · <a href="{{ .SiteURL }}" style="color:#b07d2e;text-decoration:none;">social.short.horse</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>

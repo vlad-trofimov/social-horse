@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import type { FeedPost } from './feed'
+import type { FeedPost, OriginalPost } from './feed'
 
 export async function getProfileByUsername(username: string) {
   const supabase = await createClient()
@@ -37,7 +37,7 @@ export async function getUserPosts(profileId: string, viewerId: string): Promise
   const { data: posts, error: postsError } = await supabase
     .from('posts')
     .select(
-      `id, author_id, content, image_url, repost_of, created_at,
+      `id, author_id, content, image_url, embed_url, repost_of, created_at,
        author:profiles!posts_author_id_fkey(username, display_name, avatar_url)`,
     )
     .eq('author_id', profileId)
@@ -48,8 +48,9 @@ export async function getUserPosts(profileId: string, viewerId: string): Promise
   if (!posts || posts.length === 0) return []
 
   const postIds = posts.map((p) => p.id)
+  const originalIds = [...new Set(posts.map((p) => p.repost_of).filter(Boolean) as string[])]
 
-  const [reactionsRes, commentsRes, viewerReactionsRes] = await Promise.all([
+  const [reactionsRes, commentsRes, viewerReactionsRes, originalPostsRes] = await Promise.all([
     supabase.from('reactions').select('post_id').in('post_id', postIds),
     supabase.from('comments').select('post_id').in('post_id', postIds),
     supabase
@@ -57,6 +58,14 @@ export async function getUserPosts(profileId: string, viewerId: string): Promise
       .select('post_id, type')
       .in('post_id', postIds)
       .eq('user_id', viewerId),
+    originalIds.length > 0
+      ? supabase
+          .from('posts')
+          .select(
+            'id, content, image_url, embed_url, created_at, author:profiles!posts_author_id_fkey(username, display_name, avatar_url)',
+          )
+          .in('id', originalIds)
+      : Promise.resolve({ data: [], error: null }),
   ])
 
   if (reactionsRes.error) throw reactionsRes.error
@@ -81,6 +90,23 @@ export async function getUserPosts(profileId: string, viewerId: string): Promise
     {},
   )
 
+  const originalPostsMap = new Map<string, OriginalPost>()
+  for (const row of originalPostsRes.data ?? []) {
+    const a = Array.isArray(row.author) ? row.author[0] : row.author
+    originalPostsMap.set(row.id, {
+      id: row.id,
+      content: row.content,
+      image_url: row.image_url,
+      embed_url: row.embed_url ?? null,
+      created_at: row.created_at,
+      author: {
+        username: a?.username ?? '',
+        display_name: a?.display_name ?? null,
+        avatar_url: a?.avatar_url ?? null,
+      },
+    })
+  }
+
   return posts.map((post) => {
     const author = Array.isArray(post.author) ? post.author[0] : post.author
     return {
@@ -88,6 +114,7 @@ export async function getUserPosts(profileId: string, viewerId: string): Promise
       author_id: post.author_id,
       content: post.content,
       image_url: post.image_url,
+      embed_url: post.embed_url ?? null,
       repost_of: post.repost_of,
       created_at: post.created_at,
       author: {
@@ -95,6 +122,7 @@ export async function getUserPosts(profileId: string, viewerId: string): Promise
         display_name: author?.display_name ?? null,
         avatar_url: author?.avatar_url ?? null,
       },
+      original_post: post.repost_of ? (originalPostsMap.get(post.repost_of) ?? null) : null,
       reaction_count: reactionCounts[post.id] ?? 0,
       comment_count: commentCounts[post.id] ?? 0,
       viewer_reaction: viewerReactions[post.id] ?? null,

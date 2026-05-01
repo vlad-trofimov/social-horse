@@ -97,6 +97,7 @@ export type Database = {
           author_id: string
           content: string | null
           created_at: string
+          embed_url: string | null
           id: string
           image_url: string | null
           repost_of: string | null
@@ -105,6 +106,7 @@ export type Database = {
           author_id: string
           content?: string | null
           created_at?: string
+          embed_url?: string | null
           id?: string
           image_url?: string | null
           repost_of?: string | null
@@ -113,6 +115,7 @@ export type Database = {
           author_id?: string
           content?: string | null
           created_at?: string
+          embed_url?: string | null
           id?: string
           image_url?: string | null
           repost_of?: string | null

@@ -3,14 +3,31 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
+import { isAllowedEmbedUrl } from '@/lib/embeds'
 
-export async function createPost(content: string | null, imageUrl: string | null) {
-  const schema = z.object({
-    content: z.string().max(1000).nullable(),
-    imageUrl: z.string().url().nullable(),
-  }).refine(d => d.content || d.imageUrl, { message: 'Post must have content or an image' })
+export async function createPost(
+  content: string | null,
+  imageUrl: string | null,
+  embedUrl: string | null,
+) {
+  const schema = z
+    .object({
+      content: z.string().max(1000).nullable(),
+      imageUrl: z.string().url().nullable(),
+      embedUrl: z
+        .string()
+        .url()
+        .refine(
+          (u) => isAllowedEmbedUrl(u),
+          { message: 'Unsupported embed source' },
+        )
+        .nullable(),
+    })
+    .refine((d) => d.content || d.imageUrl || d.embedUrl, {
+      message: 'Post must have content, an image, or an embed',
+    })
 
-  const result = schema.safeParse({ content, imageUrl })
+  const result = schema.safeParse({ content, imageUrl, embedUrl })
   if (!result.success) return
 
   const trimmed = result.data.content?.trim() || null
@@ -22,6 +39,7 @@ export async function createPost(content: string | null, imageUrl: string | null
     author_id: user!.id,
     content: trimmed || null,
     image_url: result.data.imageUrl || null,
+    embed_url: result.data.embedUrl || null,
   })
 
   revalidatePath('/feed')
