@@ -32,14 +32,19 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               href={`/profile/${profile?.username}`}
               className="hidden sm:block text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors"
             >
-              {profile?.display_name ?? profile?.username ?? 'Profile'}
+              My Profile
             </a>
-            <form action={logout}>
+            <form action={logout} className="flex items-center">
               <button
                 type="submit"
-                className="text-sm text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
+                title="Sign out"
+                className="flex items-center text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
               >
-                Sign out
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                  <polyline points="16 17 21 12 16 7"/>
+                  <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
               </button>
             </form>
           </div>

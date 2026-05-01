@@ -1,6 +1,17 @@
+import { redirect } from 'next/navigation'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 
-export default function LandingPage() {
+export default async function LandingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ code?: string; token_hash?: string; type?: string }>
+}) {
+  const params = await searchParams
+  if (params.code || params.token_hash) {
+    const qs = new URLSearchParams(params as Record<string, string>).toString()
+    redirect(`/auth/callback?${qs}`)
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
       <div className="absolute top-4 right-4">
