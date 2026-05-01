@@ -1,5 +1,6 @@
 import { register } from '@/lib/actions/auth'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import SubmitButton from '@/components/ui/SubmitButton'
 
 // Letters (including accented), hyphens, apostrophes, spaces
 const NAME_PATTERN = "[a-zA-ZÀ-ÖØ-öø-ÿ'\\- ]+"
@@ -92,12 +93,11 @@ export default async function RegisterPage({
             />
           </div>
 
-          <button
-            type="submit"
-            className="w-full py-2 px-4 bg-black dark:bg-white text-white dark:text-black text-sm font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
-          >
-            Create account
-          </button>
+          <SubmitButton
+            label="Create account"
+            pendingLabel="Creating account…"
+            className="w-full py-2 px-4 bg-black dark:bg-white text-white dark:text-black text-sm font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 transition-colors"
+          />
         </form>
 
         <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">

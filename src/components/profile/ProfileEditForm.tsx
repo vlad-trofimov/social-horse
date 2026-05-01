@@ -7,6 +7,7 @@ import { updateProfile } from '@/lib/actions/profile'
 
 interface ProfileEditFormProps {
   userId: string
+  username: string
   initialDisplayName: string
   initialBio: string
   initialAvatarUrl: string | null
@@ -14,6 +15,7 @@ interface ProfileEditFormProps {
 
 export default function ProfileEditForm({
   userId,
+  username,
   initialDisplayName,
   initialBio,
   initialAvatarUrl,
@@ -23,6 +25,7 @@ export default function ProfileEditForm({
   const [bio, setBio] = useState(initialBio)
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(initialAvatarUrl)
+  const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -38,24 +41,27 @@ export default function ProfileEditForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    setError(null)
     startTransition(async () => {
       let newAvatarUrl: string | null = initialAvatarUrl
 
       if (avatarFile) {
         const ext = avatarFile.name.split('.').pop()
-        const path = `avatars/${userId}/avatar.${ext}`
+        const path = `${userId}/avatar.${ext}`
         const supabase = createClient()
-        const { error } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from('avatars')
           .upload(path, avatarFile, { upsert: true })
-        if (!error) {
-          const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path)
-          newAvatarUrl = urlData.publicUrl
+        if (uploadError) {
+          setError('Photo upload failed: ' + uploadError.message)
+          return
         }
+        const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path)
+        newAvatarUrl = urlData.publicUrl
       }
 
       await updateProfile(displayName, bio, newAvatarUrl ?? null)
-      router.refresh()
+      router.push(`/profile/${username}`)
     })
   }
 
@@ -64,6 +70,11 @@ export default function ProfileEditForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {error && (
+        <div className="px-4 py-3 rounded-lg bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-sm text-red-700 dark:text-red-400">
+          {error}
+        </div>
+      )}
       <div>
         <div className="flex flex-col items-center sm:items-start gap-3">
           {avatarPreview ? (

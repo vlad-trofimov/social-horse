@@ -32,5 +32,5 @@ export async function updateProfile(
     })
     .eq('id', user!.id)
 
-  revalidatePath('/profile')
+  revalidatePath('/', 'layout')
 }

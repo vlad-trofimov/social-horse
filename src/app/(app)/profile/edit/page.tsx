@@ -23,6 +23,7 @@ export default async function EditProfilePage() {
       <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Edit Profile</h1>
       <ProfileEditForm
         userId={user.id}
+        username={profile.username}
         initialDisplayName={profile.display_name ?? ''}
         initialBio={profile.bio ?? ''}
         initialAvatarUrl={profile.avatar_url ?? null}
