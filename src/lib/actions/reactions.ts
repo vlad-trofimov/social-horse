@@ -48,5 +48,5 @@ export async function toggleReaction(
       .eq('user_id', user.id)
   }
 
-  revalidatePath('/feed')
+  revalidatePath('/', 'layout')
 }

@@ -17,35 +17,41 @@ export async function sendFriendRequest(addresseeId: string) {
       { onConflict: 'requester_id,addressee_id', ignoreDuplicates: true }
     )
 
-  revalidatePath('/profile')
+  revalidatePath('/', 'layout')
 }
 
 export async function acceptFriendRequest(requesterId: string) {
   if (!z.string().uuid().safeParse(requesterId).success) return
 
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
 
   await supabase
     .from('connections')
     .update({ status: 'accepted' })
     .eq('requester_id', requesterId)
+    .eq('addressee_id', user.id)
     .eq('status', 'pending')
 
-  revalidatePath('/profile')
+  revalidatePath('/', 'layout')
 }
 
 export async function declineFriendRequest(requesterId: string) {
   if (!z.string().uuid().safeParse(requesterId).success) return
 
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
 
   await supabase
     .from('connections')
     .update({ status: 'declined' })
     .eq('requester_id', requesterId)
+    .eq('addressee_id', user.id)
     .eq('status', 'pending')
 
-  revalidatePath('/profile')
+  revalidatePath('/', 'layout')
 }
 
 export async function removeFriend(otherUserId: string) {
@@ -66,5 +72,5 @@ export async function removeFriend(otherUserId: string) {
     .eq('requester_id', otherUserId)
     .eq('addressee_id', user!.id)
 
-  revalidatePath('/profile')
+  revalidatePath('/', 'layout')
 }

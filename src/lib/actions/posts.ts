@@ -54,8 +54,6 @@ export async function repost(originalPostId: string) {
   await supabase.from('posts').insert({
     author_id: user!.id,
     repost_of: originalPostId,
-    content: '',
-    image_url: null,
   })
 
   revalidatePath('/feed')
