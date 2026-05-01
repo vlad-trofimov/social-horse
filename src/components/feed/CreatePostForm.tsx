@@ -109,7 +109,7 @@ export default function CreatePostForm() {
           type="button"
           onClick={handleSubmit}
           disabled={isDisabled}
-          className="px-4 py-1.5 bg-black dark:bg-white text-white dark:text-black text-sm font-medium rounded-full disabled:opacity-40 transition-colors"
+          className="flex-shrink-0 px-4 py-1.5 bg-black dark:bg-white text-white dark:text-black text-sm font-medium rounded-full disabled:opacity-40 transition-colors"
         >
           {isPending ? 'Posting…' : 'Post'}
         </button>

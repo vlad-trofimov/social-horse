@@ -2,13 +2,18 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { z } from 'zod'
 
 export async function createPost(content: string | null, imageUrl: string | null) {
-  const trimmed = content?.trim() || null
+  const schema = z.object({
+    content: z.string().max(1000).nullable(),
+    imageUrl: z.string().url().nullable(),
+  }).refine(d => d.content || d.imageUrl, { message: 'Post must have content or an image' })
 
-  if (!trimmed && !imageUrl) {
-    return
-  }
+  const result = schema.safeParse({ content, imageUrl })
+  if (!result.success) return
+
+  const trimmed = result.data.content?.trim() || null
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -16,13 +21,15 @@ export async function createPost(content: string | null, imageUrl: string | null
   await supabase.from('posts').insert({
     author_id: user!.id,
     content: trimmed || null,
-    image_url: imageUrl || null,
+    image_url: result.data.imageUrl || null,
   })
 
   revalidatePath('/feed')
 }
 
 export async function repost(originalPostId: string) {
+  if (!z.string().uuid().safeParse(originalPostId).success) return
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -37,6 +44,8 @@ export async function repost(originalPostId: string) {
 }
 
 export async function deletePost(postId: string) {
+  if (!z.string().uuid().safeParse(postId).success) return
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 

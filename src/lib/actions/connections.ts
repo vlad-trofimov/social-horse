@@ -2,8 +2,11 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { z } from 'zod'
 
 export async function sendFriendRequest(addresseeId: string) {
+  if (!z.string().uuid().safeParse(addresseeId).success) return
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -18,6 +21,8 @@ export async function sendFriendRequest(addresseeId: string) {
 }
 
 export async function acceptFriendRequest(requesterId: string) {
+  if (!z.string().uuid().safeParse(requesterId).success) return
+
   const supabase = await createClient()
 
   await supabase
@@ -30,6 +35,8 @@ export async function acceptFriendRequest(requesterId: string) {
 }
 
 export async function declineFriendRequest(requesterId: string) {
+  if (!z.string().uuid().safeParse(requesterId).success) return
+
   const supabase = await createClient()
 
   await supabase
@@ -42,6 +49,8 @@ export async function declineFriendRequest(requesterId: string) {
 }
 
 export async function removeFriend(otherUserId: string) {
+  if (!z.string().uuid().safeParse(otherUserId).success) return
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 

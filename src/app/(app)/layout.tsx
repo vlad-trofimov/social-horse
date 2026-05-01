@@ -23,14 +23,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <a href="/feed" className="text-lg font-bold text-gray-900 dark:text-white tracking-tight shrink-0">
             🐴 Horse Social
           </a>
-          <div className="flex-1 flex justify-center px-4">
+          <div className="hidden sm:flex flex-1 justify-center px-4">
             <SearchBar />
           </div>
           <div className="flex items-center gap-3 shrink-0">
             <ThemeToggle />
             <a
               href={`/profile/${profile?.username}`}
-              className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors"
+              className="hidden sm:block text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors"
             >
               {profile?.display_name ?? profile?.username ?? 'Profile'}
             </a>
@@ -43,6 +43,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               </button>
             </form>
           </div>
+        </div>
+        <div className="sm:hidden px-4 pb-2">
+          <SearchBar className="w-full" />
         </div>
       </header>
 

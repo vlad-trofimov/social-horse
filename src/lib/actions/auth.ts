@@ -2,19 +2,25 @@
 
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { z } from 'zod'
 
 export async function register(formData: FormData) {
+  const nameRegex = /^[a-zA-ZÀ-ÖØ-öø-ÿ'\- ]+$/
+  const schema = z.object({
+    first_name: z.string().min(1).max(50).regex(nameRegex),
+    last_name: z.string().min(1).max(50).regex(nameRegex),
+    email: z.string().email(),
+    password: z.string().min(6),
+  })
+
+  const result = schema.safeParse(Object.fromEntries(formData))
+  if (!result.success) {
+    redirect(`/register?error=${encodeURIComponent(result.error.issues[0].message)}`)
+  }
+
   const supabase = await createClient()
 
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
-  const firstName = formData.get('first_name') as string
-  const lastName = formData.get('last_name') as string
-
-  const namePattern = /^[a-zA-ZÀ-ÖØ-öø-ÿ'\- ]+$/
-  if (!namePattern.test(firstName) || !namePattern.test(lastName)) {
-    redirect(`/register?error=${encodeURIComponent('Names may only contain letters, hyphens, and apostrophes.')}`)
-  }
+  const { first_name: firstName, last_name: lastName, email, password } = result.data
 
   const displayName = `${firstName.trim()} ${lastName.trim()}`
 
@@ -37,10 +43,19 @@ export async function register(formData: FormData) {
 }
 
 export async function login(formData: FormData) {
+  const schema = z.object({
+    email: z.string().email(),
+    password: z.string().min(1),
+  })
+
+  const result = schema.safeParse(Object.fromEntries(formData))
+  if (!result.success) {
+    redirect(`/login?error=${encodeURIComponent(result.error.issues[0].message)}`)
+  }
+
   const supabase = await createClient()
 
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
+  const { email, password } = result.data
 
   const { error } = await supabase.auth.signInWithPassword({ email, password })
 

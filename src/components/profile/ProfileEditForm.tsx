@@ -65,7 +65,7 @@ export default function ProfileEditForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <div className="flex flex-col items-start gap-3">
+        <div className="flex flex-col items-center sm:items-start gap-3">
           {avatarPreview ? (
             <img
               src={avatarPreview}

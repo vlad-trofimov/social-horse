@@ -2,11 +2,20 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { z } from 'zod'
 
 export async function toggleReaction(
   postId: string,
   type: 'like' | 'heart' | 'laugh' | 'wow',
 ) {
+  const schema = z.object({
+    postId: z.string().uuid(),
+    type: z.enum(['like', 'heart', 'laugh', 'wow']),
+  })
+
+  const result = schema.safeParse({ postId, type })
+  if (!result.success) return
+
   const supabase = await createClient()
 
   const {

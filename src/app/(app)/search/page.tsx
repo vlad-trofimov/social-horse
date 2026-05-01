@@ -53,18 +53,18 @@ export default async function SearchPage({
                 alt={profile.display_name ?? profile.username}
                 width={40}
                 height={40}
-                className="rounded-full object-cover"
+                className="rounded-full object-cover shrink-0"
               />
             ) : (
               <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 flex items-center justify-center text-sm font-medium shrink-0">
                 {(profile.display_name ?? profile.username ?? '?')[0].toUpperCase()}
               </div>
             )}
-            <div>
-              <p className="font-medium text-sm text-gray-900 dark:text-white">
+            <div className="min-w-0 flex-1">
+              <p className="font-medium text-sm text-gray-900 dark:text-white truncate">
                 {profile.display_name ?? profile.username}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">@{profile.username}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">@{profile.username}</p>
             </div>
           </a>
         ))}
