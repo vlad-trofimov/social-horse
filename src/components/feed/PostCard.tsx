@@ -2,6 +2,8 @@ import Link from 'next/link'
 import type { FeedPost } from '@/lib/queries/feed'
 import RepostBadge from './RepostBadge'
 import DeletePostButton from './DeletePostButton'
+import PostActions from './PostActions'
+import ImageModal from '@/components/ui/ImageModal'
 
 type PostCardProps = {
   post: FeedPost
@@ -19,19 +21,21 @@ export default function PostCard({ post, currentUserId }: PostCardProps) {
       )}
 
       <div className="flex items-center gap-3">
-        {post.author.avatar_url ? (
-          <img
-            src={post.author.avatar_url}
-            alt={authorLabel}
-            className="w-9 h-9 rounded-full object-cover"
-          />
-        ) : (
-          <div className="w-9 h-9 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-sm font-medium text-gray-600 dark:text-gray-300 shrink-0">
-            {avatarLetter}
-          </div>
-        )}
+        <Link href={`/profile/${post.author.username}`} className="shrink-0">
+          {post.author.avatar_url ? (
+            <img
+              src={post.author.avatar_url}
+              alt={authorLabel}
+              className="w-9 h-9 rounded-full object-cover hover:opacity-80 transition-opacity"
+            />
+          ) : (
+            <div className="w-9 h-9 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-sm font-medium text-gray-600 dark:text-gray-300 hover:opacity-80 transition-opacity">
+              {avatarLetter}
+            </div>
+          )}
+        </Link>
 
-        <div className="flex flex-col min-w-0">
+        <Link href={`/profile/${post.author.username}`} className="flex flex-col min-w-0 hover:opacity-80 transition-opacity">
           {post.author.display_name && (
             <span className="font-medium text-gray-900 dark:text-white text-sm truncate">
               {post.author.display_name}
@@ -40,40 +44,41 @@ export default function PostCard({ post, currentUserId }: PostCardProps) {
           <span className="text-gray-500 dark:text-gray-400 text-xs truncate">
             @{post.author.username}
           </span>
-        </div>
+        </Link>
 
-        <span className="text-gray-400 dark:text-gray-500 text-xs ml-auto shrink-0">
+        <Link
+          href={`/post/${post.id}`}
+          className="text-gray-400 dark:text-gray-500 text-xs ml-auto shrink-0 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+        >
           {new Date(post.created_at).toLocaleDateString()}
-        </span>
+        </Link>
       </div>
 
       {post.content && post.content !== '' && (
-        <p className="mt-3 text-sm text-gray-900 dark:text-white whitespace-pre-wrap">
-          {post.content}
-        </p>
+        <Link href={`/post/${post.id}`} className="block group">
+          <p className="mt-3 text-sm text-gray-900 dark:text-white whitespace-pre-wrap group-hover:opacity-80 transition-opacity">
+            {post.content}
+          </p>
+        </Link>
       )}
 
       {post.image_url && (
-        <img
-          src={post.image_url}
-          alt=""
-          className="mt-3 rounded-xl w-full object-cover max-h-96"
-        />
+        <ImageModal src={post.image_url} />
       )}
 
-      <div className="mt-3 flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-        <span>❤️ {post.reaction_count}</span>
-        <span>💬 {post.comment_count}</span>
+      <div className="mt-3 flex items-center justify-between">
+        <PostActions
+          postId={post.id}
+          reactionCount={post.reaction_count}
+          commentCount={post.comment_count}
+          viewerReaction={post.viewer_reaction}
+          authorId={post.author_id}
+          currentUserId={currentUserId}
+        />
         <div className="ml-auto flex items-center gap-3">
           {post.author_id === currentUserId && (
             <DeletePostButton postId={post.id} />
           )}
-          <Link
-            href={`/post/${post.id}`}
-            className="hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
-          >
-            View thread
-          </Link>
         </div>
       </div>
     </div>
